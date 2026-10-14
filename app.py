@@ -35,12 +35,22 @@ ACCENT_HOVER = "#165B69"
 DANGER = "#B5442E"
 DANGER_HOVER = "#8E3524"
 
-# Форматы с ffmpeg (склейка лучшего видео и аудио)
+def compatible(height=None):
+    """Видео H.264 + звук AAC (m4a): играет в любом плеере на любом компьютере.
+    Если такого варианта нет — берём что есть, но звук всё равно стараемся AAC."""
+    h = f"[height<={height}]" if height else ""
+    return (f"bestvideo*{h}[vcodec^=avc1]+bestaudio[ext=m4a]"
+            f"/bestvideo*{h}+bestaudio[ext=m4a]"
+            f"/bestvideo*{h}+bestaudio"
+            f"/best{h}")
+
+
+# Форматы с ffmpeg (склейка видео и аудио)
 FORMATS_FFMPEG = {
-    "Лучшее качество": "bestvideo*+bestaudio/best",
-    "До 1080p": "bestvideo*[height<=1080]+bestaudio/best[height<=1080]",
-    "До 720p": "bestvideo*[height<=720]+bestaudio/best[height<=720]",
-    "До 480p": "bestvideo*[height<=480]+bestaudio/best[height<=480]",
+    "До 1080p (играет везде)": compatible(1080),
+    "До 720p (играет везде)": compatible(720),
+    "До 480p (играет везде)": compatible(480),
+    "Максимальное, до 4K (нужен VLC)": "bestvideo*+bestaudio[ext=m4a]/bestvideo*+bestaudio/best",
     "Только звук (MP3)": "bestaudio/best",
 }
 
